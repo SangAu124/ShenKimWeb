@@ -10,14 +10,6 @@ shenkim.com 접속 시 보여줄 간단한 개인 랜딩 페이지입니다.
 - `index.html`
 - `styles.css`
 
-## 로컬 미리보기
-```bash
-cd ~/.openclaw/workspace/shenkim-site
-python3 -m http.server 8088
-```
-
-브라우저에서 `http://localhost:8088` 접속
-
 ## 배포 아이디어
 - 기존 `shenkim.com` 루트 도메인을 이 정적 사이트로 연결
 - Cloudflare Pages 또는 간단한 nginx/caddy 정적 서빙 가능
