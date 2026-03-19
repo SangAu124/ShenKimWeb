@@ -17,17 +17,23 @@ pnpm-debug.log*
 .vscode/
 .idea/
 
-# Python local preview
-__pycache__/
-
 # Node / package managers
 node_modules/
+package-lock.json
+
+# Next.js
+.next/
+out/
+next-env.d.ts
 
 # Build artifacts
 .dist/
 dist/
 build/
 .cache/
+
+# TypeScript
+*.tsbuildinfo
 
 # Local docker/runtime data
 postgres-data/
