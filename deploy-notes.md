@@ -1,22 +1,15 @@
 # Deploy Notes
 
-## Option 1: Nginx container
+## Static site deployment
+- Cloudflare Pages
+- Build command: none
+- Output directory: `.`
+
+## Local preview
 ```bash
-cd ~/.openclaw/workspace/shenkim-site
-docker build -t shenkim-site .
-docker run -d --name shenkim-site -p 8080:80 shenkim-site
+python3 -m http.server 8088
 ```
 
-## Option 2: Cloudflare Pages
-- Upload this folder as static site
-- Build command: none
-- Output directory: /
-
-## Option 3: Existing server root
-- Copy `index.html` and `styles.css` into web root
-
-## Domain routing idea
-- `shenkim.com` -> this static site
-- `api.shenkim.com` -> existing API/tunnel endpoint
-- `mc.shenkim.com` -> minecraft
-- `ssh.shenkim.com` -> ssh
+## Notes
+- This repository is intended to contain only the public landing page assets.
+- Sensitive infrastructure endpoints and private operational details should not be documented here.
