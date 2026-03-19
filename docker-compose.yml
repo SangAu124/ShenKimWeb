@@ -1,0 +1,7 @@
+services:
+  shenkim-site:
+    build: .
+    container_name: shenkim-site
+    restart: unless-stopped
+    ports:
+      - "18088:80"

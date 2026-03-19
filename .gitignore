@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+
+# Python local preview
+__pycache__/
+
+# Node / package managers
+node_modules/
+
+# Build artifacts
+.dist/
+dist/
+build/
+.cache/
+
+# Local docker/runtime data
+postgres-data/
