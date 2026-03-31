@@ -24,9 +24,10 @@ type TerminalMessage = {
 
 interface PersonaChatSectionProps {
   content: PersonaSectionContent
+  onPlay?: () => void
 }
 
-const QUICK_COMMANDS = ['help', 'about', 'skills', 'projects', 'resume', 'contact']
+const QUICK_COMMANDS = ['help', 'play', 'about', 'skills', 'projects', 'resume', 'contact']
 
 const SECTION_SELECTOR: Record<TerminalSectionId, string> = {
   hero: 'main',
@@ -58,7 +59,7 @@ function createMessage(
   }
 }
 
-export function PersonaChatSection({ content }: PersonaChatSectionProps) {
+export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps) {
   const initialMessages = useMemo<TerminalMessage[]>(
     () => content.terminalBoot.map((line) => createMessage('system', line)),
     [content.terminalBoot],
@@ -98,6 +99,8 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         .slice(0, 5)
     }
     if ('search'.startsWith(trimmed)) return ['search']
+
+    if ('play'.startsWith(trimmed)) return ['play']
 
     return TERMINAL_COMMANDS.filter((command) => !command.includes('<') && command.startsWith(trimmed)).slice(0, 5)
   }, [input])
@@ -139,6 +142,12 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     setHistoryIndex(null)
     setDraftInput('')
     setInput('')
+
+    if (trimmed.toLowerCase() === 'play') {
+      await appendOutput(createMessage('system', 'play sequence initiated... leaving terminal surface.'))
+      onPlay?.()
+      return
+    }
 
     const explicitAsk = trimmed.toLowerCase().startsWith('ask ')
     const commandResult = explicitAsk ? null : parseTerminalCommand(trimmed)
@@ -258,14 +267,14 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   }
 
   return (
-    <section id="persona" className="flex h-full min-h-0 flex-col rounded-[20px] border border-white/10 bg-[#050816]">
-      <div className="border-b border-white/10 px-5 py-5">
+    <section id="persona" className="flex h-full min-h-0 flex-col rounded-[16px] border border-white/10 bg-[#050816] md:rounded-[20px]">
+      <div className="border-b border-white/10 px-3 py-4 sm:px-4 md:px-5 md:py-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
               {content.eyebrow}
             </p>
-            <h1 className="mt-3 text-2xl font-bold tracking-[-0.04em] text-white md:text-3xl">
+            <h1 className="mt-3 text-xl font-bold tracking-[-0.04em] text-white sm:text-2xl md:text-3xl">
               {content.title}
             </h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-muted">{content.description}</p>
@@ -273,11 +282,12 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
           <div className="hidden text-right text-[11px] uppercase tracking-[0.14em] text-white/35 xl:block">
             <div>session active</div>
             <div className="mt-1">command + natural language</div>
+            <div className="mt-1">try: play</div>
           </div>
         </div>
       </div>
 
-      <div ref={logContainerRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-5 font-mono text-sm leading-7">
+      <div ref={logContainerRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-4 font-mono text-xs leading-6 sm:px-4 sm:text-sm md:px-5 md:py-5 md:leading-7">
         <div className="space-y-2">
           {[...introLines, ...messages].map((msg, idx) => (
             <div key={`${msg.type}-${idx}-${msg.timestamp}`} className={`whitespace-pre-wrap break-words ${lineColor(msg.type)}`}>
@@ -309,7 +319,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         </div>
       </div>
 
-      <div className="border-t border-white/10 bg-black/20 px-5 py-4">
+      <div className="border-t border-white/10 bg-black/20 px-3 py-3 sm:px-4 md:px-5 md:py-4">
         <div className="flex items-center gap-3 rounded-[16px] border border-white/10 bg-[#0b1020] px-4 py-3">
           <span className="font-mono text-sm text-accent">❯</span>
           <input
