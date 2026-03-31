@@ -73,12 +73,14 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   const logContainerRef = useRef<HTMLDivElement>(null)
 
   const suggestions = useMemo(() => {
-    const trimmed = input.trim().toLowerCase()
+    const raw = input.toLowerCase()
+    const trimmed = raw.trim()
     const projectSlugs = portfolioContent.profileAssets.projects.map((project) => project.slug)
 
     if (!trimmed) return QUICK_COMMANDS
 
-    if (trimmed === 'open') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
+    if ('open'.startsWith(trimmed)) return ['open']
+    if (raw === 'open ') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
     if (trimmed.startsWith('open ')) {
       const query = trimmed.replace(/^open\s+/, '')
       return projectSlugs
@@ -87,7 +89,8 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         .slice(0, 5)
     }
 
-    if (trimmed === 'search') return projectSlugs.map((slug) => `search ${slug}`).slice(0, 5)
+    if ('search'.startsWith(trimmed)) return ['search']
+    if (raw === 'search ') return projectSlugs.map((slug) => `search ${slug}`).slice(0, 5)
     if (trimmed.startsWith('search ')) {
       const query = trimmed.replace(/^search\s+/, '')
       return projectSlugs
@@ -96,7 +99,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         .slice(0, 5)
     }
 
-    return TERMINAL_COMMANDS.filter((command) => command.startsWith(trimmed)).slice(0, 5)
+    return TERMINAL_COMMANDS.filter((command) => !command.includes('<') && command.startsWith(trimmed)).slice(0, 5)
   }, [input])
 
   const introLines = useMemo(
