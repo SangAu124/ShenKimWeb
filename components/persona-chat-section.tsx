@@ -214,7 +214,13 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     if (e.key === 'Tab' && suggestions.length > 0) {
       e.preventDefault()
       const suggestion = suggestions[0]
-      setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+      if (suggestion === 'open') {
+        setInput('open ')
+      } else if (suggestion === 'search') {
+        setInput('search ')
+      } else {
+        setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+      }
       return
     }
   }
@@ -328,7 +334,11 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
-              onClick={() => setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)}
+              onClick={() => {
+                if (suggestion === 'open') setInput('open ')
+                else if (suggestion === 'search') setInput('search ')
+                else setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+              }}
               className="rounded-full border border-white/10 px-2.5 py-1 transition-colors hover:border-accent/40 hover:text-white"
             >
               {suggestion}
