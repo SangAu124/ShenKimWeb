@@ -3,13 +3,18 @@
 import { useState, useRef, useEffect } from 'react'
 import { resolvePersonaResponse } from '@/lib/chat-resolver'
 import { EXAMPLE_QUESTIONS } from '@/lib/persona-responses'
+import type { PersonaSectionContent } from '@/data/portfolio'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
 }
 
-export function PersonaChatSection() {
+interface PersonaChatSectionProps {
+  content: PersonaSectionContent
+}
+
+export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -50,18 +55,18 @@ export function PersonaChatSection() {
       {/* Left: description + example questions */}
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-accent">
-          AI Persona Chat
+          {content.eyebrow}
         </p>
         <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em]">
-          김상은에게 직접 물어보세요
+          {content.title}
         </h2>
         <p className="mt-4 leading-8 text-muted">
-          판단 기준, 운영 경험, 협업 방식 — 궁금한 걸 자유롭게 물어보세요.
+          {content.description}
         </p>
 
         <div className="mt-6">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-            // 예시 질문
+            {content.exampleQuestionsLabel}
           </p>
           <div className="flex flex-col gap-2">
             {EXAMPLE_QUESTIONS.map((q) => (
@@ -84,7 +89,7 @@ export function PersonaChatSection() {
         <div className="max-h-[480px] min-h-[300px] flex-1 space-y-4 overflow-y-auto p-5">
           {messages.length === 0 && (
             <div className="flex h-full items-center justify-center">
-              <p className="text-sm text-muted">왼쪽 예시 질문을 눌러보거나, 직접 입력하세요.</p>
+              <p className="text-sm text-muted">{content.emptyState}</p>
             </div>
           )}
 
@@ -136,7 +141,7 @@ export function PersonaChatSection() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="궁금한 것을 자유롭게 입력하세요..."
+            placeholder={content.inputPlaceholder}
             disabled={isLoading}
             className="flex-1 rounded-xl border border-white/10 bg-black/20 px-4 py-2.5 text-sm placeholder:text-white/30 transition-colors focus:border-accent/40 focus:outline-none disabled:opacity-50"
           />

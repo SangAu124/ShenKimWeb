@@ -4,22 +4,23 @@ import { FooterCtaSection } from '@/components/footer-cta-section'
 import { HeroSection } from '@/components/hero-section'
 import { PersonaChatSection } from '@/components/persona-chat-section'
 import { ScenarioSection } from '@/components/scenario-section'
+import { portfolioContent } from '@/data/portfolio'
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-bg text-text">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-20 pt-8 md:px-10">
         <header className="flex items-center justify-between border-b border-white/10 pb-5 text-sm text-muted">
-          <span className="font-semibold tracking-[0.18em] text-accent">KIMSANGEUN.EXE</span>
-          <span>Problem Solver / Operator / Builder</span>
+          <span className="font-semibold tracking-[0.18em] text-accent">{portfolioContent.header.brand}</span>
+          <span>{portfolioContent.header.tagline}</span>
         </header>
 
-        <HeroSection />
+        <HeroSection content={portfolioContent.hero} />
         <ScenarioSection />
-        <PersonaChatSection />
-        <AboutSection />
-        <CaseSnapshotSection />
-        <FooterCtaSection />
+        <PersonaChatSection content={portfolioContent.persona} />
+        <AboutSection cards={portfolioContent.aboutCards} />
+        <CaseSnapshotSection content={portfolioContent.caseSnapshots} />
+        <FooterCtaSection content={portfolioContent.footerCta} />
       </div>
     </main>
   )
