@@ -165,6 +165,7 @@ function buildMonitorCanvas(): HTMLCanvasElement {
 export function HomeWorldDemo() {
   const [worldMode, setWorldMode] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
+  const [exiting, setExiting] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
   const [captureCanvas, setCaptureCanvas] = useState<HTMLCanvasElement | null>(null)
 
@@ -178,36 +179,42 @@ export function HomeWorldDemo() {
     const canvas = buildMonitorCanvas()
     setCaptureCanvas(canvas)
     setTransitioning(true)
-    // worldMode becomes true only after the 3D camera animation completes
   }
 
-  function handleAnimationComplete() {
+  function handleEnterComplete() {
     setWorldMode(true)
     setTransitioning(false)
   }
 
   function exitWorldMode() {
+    setExiting(true)
+  }
+
+  function handleExitComplete() {
     setWorldMode(false)
-    setTransitioning(false)
+    setExiting(false)
     setCaptureCanvas(null)
   }
 
-  const showWorld = transitioning || worldMode
+  // determine current camera direction for WorldRoomCanvas
+  const cameraDirection = transitioning ? 'in' : exiting ? 'out' : null
+
+  const showWorld = transitioning || worldMode || exiting
 
   return (
     <main className="h-screen overflow-hidden bg-[#060913] text-text">
       <div className="relative h-full w-full overflow-hidden">
-        {/* 3D World — mounted as soon as transitioning starts */}
+        {/* 3D World — mounted as soon as transitioning/exiting starts */}
         <div className={`absolute inset-0 transition-opacity duration-500 ${showWorld ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
           {showWorld && (
             <WorldRoomCanvas
               captureCanvas={captureCanvas}
-              animateIn={transitioning}
-              onAnimationComplete={handleAnimationComplete}
+              cameraDirection={cameraDirection}
+              onAnimationComplete={transitioning ? handleEnterComplete : exiting ? handleExitComplete : undefined}
             />
           )}
 
-          {worldMode && (
+          {worldMode && !exiting && (
             <>
               <div className="absolute left-3 top-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-muted md:left-10 md:top-10 md:px-4 md:py-3 md:text-sm">
                 world://shenkim-exe-room
@@ -222,7 +229,7 @@ export function HomeWorldDemo() {
           )}
         </div>
 
-        {/* CSS Terminal — fades out when transitioning, no scale animation */}
+        {/* CSS Terminal — fades out when entering world, fades in when exit animation completes */}
         <div
           className={`absolute inset-0 transition-opacity duration-400 ${
             showWorld ? 'pointer-events-none opacity-0' : 'opacity-100'
@@ -246,7 +253,7 @@ export function HomeWorldDemo() {
           </div>
         </div>
 
-        {worldMode && (
+        {worldMode && !exiting && (
           <button
             onClick={exitWorldMode}
             className="absolute bottom-4 right-4 z-20 rounded-full border border-accent/40 bg-[#0b1020]/80 px-3 py-2 text-xs text-accent transition-colors hover:bg-accent/10 md:bottom-6 md:right-6 md:px-4 md:text-sm"
@@ -260,6 +267,7 @@ export function HomeWorldDemo() {
             <div className="mb-2 font-semibold text-white">debug://capture</div>
             <div>worldMode: {String(worldMode)}</div>
             <div>transitioning: {String(transitioning)}</div>
+            <div>exiting: {String(exiting)}</div>
             <div>canvas: {captureCanvas ? `${captureCanvas.width}x${captureCanvas.height}` : 'null'}</div>
             {captureCanvas && (
               <img

@@ -10,40 +10,57 @@ function easeOutExpo(t: number) {
   return t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
 }
 
+function easeInExpo(t: number) {
+  return t === 0 ? 0 : Math.pow(2, 10 * t - 10)
+}
+
+const MONITOR_POS = new THREE.Vector3(0, 1.2, 3.2)
+const ROOM_POS = new THREE.Vector3(0, 2.4, 8.5)
+const LOOK_MONITOR = new THREE.Vector3(0, 1.2, -1.5)
+const LOOK_ROOM = new THREE.Vector3(0, 1.5, 0)
+
 function CameraAnimator({
-  animateIn,
+  direction,
   onComplete,
 }: {
-  animateIn: boolean
+  direction: 'in' | 'out'
   onComplete?: () => void
 }) {
   const { camera } = useThree()
   const progressRef = useRef(0)
   const doneRef = useRef(false)
-  const DURATION = 2.2
-
-  const startPos = useRef(new THREE.Vector3(0, 1.2, 3.2))
-  const endPos = useRef(new THREE.Vector3(0, 2.4, 8.5))
-  const lookAtStart = useRef(new THREE.Vector3(0, 1.2, -1.5))
-  const lookAtEnd = useRef(new THREE.Vector3(0, 1.5, 0))
+  const exitStartPos = useRef(new THREE.Vector3())
   const tempLook = useRef(new THREE.Vector3())
 
   useEffect(() => {
-    if (animateIn) {
-      camera.position.copy(startPos.current)
-      camera.lookAt(lookAtStart.current)
-      progressRef.current = 0
-      doneRef.current = false
+    progressRef.current = 0
+    doneRef.current = false
+    if (direction === 'in') {
+      camera.position.copy(MONITOR_POS)
+      camera.lookAt(LOOK_MONITOR)
+    } else {
+      // capture current camera position (wherever OrbitControls left it)
+      exitStartPos.current.copy(camera.position)
     }
-  }, [animateIn, camera])
+  }, [direction, camera])
 
   useFrame((_, delta) => {
-    if (!animateIn || doneRef.current) return
-    progressRef.current = Math.min(progressRef.current + delta / DURATION, 1)
-    const t = easeOutExpo(progressRef.current)
-    camera.position.lerpVectors(startPos.current, endPos.current, t)
-    tempLook.current.lerpVectors(lookAtStart.current, lookAtEnd.current, t)
+    if (doneRef.current) return
+
+    if (direction === 'in') {
+      progressRef.current = Math.min(progressRef.current + delta / 2.2, 1)
+      const t = easeOutExpo(progressRef.current)
+      camera.position.lerpVectors(MONITOR_POS, ROOM_POS, t)
+      tempLook.current.lerpVectors(LOOK_MONITOR, LOOK_ROOM, t)
+    } else {
+      progressRef.current = Math.min(progressRef.current + delta / 1.6, 1)
+      const t = easeInExpo(progressRef.current)
+      camera.position.lerpVectors(exitStartPos.current, MONITOR_POS, t)
+      tempLook.current.lerpVectors(LOOK_ROOM, LOOK_MONITOR, t)
+    }
+
     camera.lookAt(tempLook.current)
+
     if (progressRef.current >= 1) {
       doneRef.current = true
       onComplete?.()
@@ -150,14 +167,15 @@ function AccentObjects() {
 
 export function WorldRoomCanvas({
   captureCanvas,
-  animateIn,
+  cameraDirection,
   onAnimationComplete,
 }: {
   captureCanvas?: HTMLCanvasElement | null
-  animateIn?: boolean
+  cameraDirection?: 'in' | 'out' | null
   onAnimationComplete?: () => void
 }) {
-  const initPos: [number, number, number] = animateIn ? [0, 1.2, 3.2] : [0, 2.4, 8.5]
+  const initPos: [number, number, number] = cameraDirection === 'in' ? [0, 1.2, 3.2] : [0, 2.4, 8.5]
+  const isAnimating = cameraDirection === 'in' || cameraDirection === 'out'
 
   return (
     <Canvas shadows camera={{ position: initPos, fov: 42, near: 0.1, far: 50 }}>
@@ -177,12 +195,12 @@ export function WorldRoomCanvas({
       <Monitor captureCanvas={captureCanvas} />
       <AccentObjects />
 
-      {animateIn && (
-        <CameraAnimator animateIn onComplete={onAnimationComplete} />
+      {isAnimating && cameraDirection && (
+        <CameraAnimator direction={cameraDirection} onComplete={onAnimationComplete} />
       )}
 
       <OrbitControls
-        enabled={!animateIn}
+        enabled={!isAnimating}
         enablePan={false}
         minDistance={6}
         maxDistance={11}
