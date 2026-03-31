@@ -1,7 +1,74 @@
 'use client'
 
-import { Canvas } from '@react-three/fiber'
+import * as THREE from 'three'
+import { useEffect, useRef } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, RoundedBox } from '@react-three/drei'
+import { useMemo } from 'react'
+
+function easeOutExpo(t: number) {
+  return t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
+}
+
+function easeInExpo(t: number) {
+  return t === 0 ? 0 : Math.pow(2, 10 * t - 10)
+}
+
+const MONITOR_POS = new THREE.Vector3(0, 1.2, 3.2)
+const ROOM_POS = new THREE.Vector3(0, 2.4, 8.5)
+const LOOK_MONITOR = new THREE.Vector3(0, 1.2, -1.5)
+const LOOK_ROOM = new THREE.Vector3(0, 1.5, 0)
+
+function CameraAnimator({
+  direction,
+  onComplete,
+}: {
+  direction: 'in' | 'out'
+  onComplete?: () => void
+}) {
+  const { camera } = useThree()
+  const progressRef = useRef(0)
+  const doneRef = useRef(false)
+  const exitStartPos = useRef(new THREE.Vector3())
+  const tempLook = useRef(new THREE.Vector3())
+
+  useEffect(() => {
+    progressRef.current = 0
+    doneRef.current = false
+    if (direction === 'in') {
+      camera.position.copy(MONITOR_POS)
+      camera.lookAt(LOOK_MONITOR)
+    } else {
+      // capture current camera position (wherever OrbitControls left it)
+      exitStartPos.current.copy(camera.position)
+    }
+  }, [direction, camera])
+
+  useFrame((_, delta) => {
+    if (doneRef.current) return
+
+    if (direction === 'in') {
+      progressRef.current = Math.min(progressRef.current + delta / 2.2, 1)
+      const t = easeOutExpo(progressRef.current)
+      camera.position.lerpVectors(MONITOR_POS, ROOM_POS, t)
+      tempLook.current.lerpVectors(LOOK_MONITOR, LOOK_ROOM, t)
+    } else {
+      progressRef.current = Math.min(progressRef.current + delta / 1.6, 1)
+      const t = easeInExpo(progressRef.current)
+      camera.position.lerpVectors(exitStartPos.current, MONITOR_POS, t)
+      tempLook.current.lerpVectors(LOOK_ROOM, LOOK_MONITOR, t)
+    }
+
+    camera.lookAt(tempLook.current)
+
+    if (progressRef.current >= 1) {
+      doneRef.current = true
+      onComplete?.()
+    }
+  })
+
+  return null
+}
 
 function RoomShell() {
   return (
@@ -29,7 +96,27 @@ function RoomShell() {
   )
 }
 
-function Monitor() {
+function Monitor({ captureCanvas }: { captureCanvas?: HTMLCanvasElement | null }) {
+  const matRef = useRef<THREE.MeshBasicMaterial>(null)
+
+  const texture = useMemo(() => {
+    if (!captureCanvas) return null
+    const t = new THREE.CanvasTexture(captureCanvas)
+    t.colorSpace = THREE.SRGBColorSpace
+    t.needsUpdate = true
+    return t
+  }, [captureCanvas])
+
+  // R3F reconciler doesn't always trigger material.needsUpdate when map changes.
+  // Explicitly push the texture and force re-upload every time it changes.
+  useEffect(() => {
+    const mat = matRef.current
+    if (!mat) return
+    mat.map = texture
+    mat.color.set(texture ? 0xffffff : 0x050816)
+    mat.needsUpdate = true
+  }, [texture])
+
   return (
     <group position={[0, 1.2, -1.5]}>
       <RoundedBox args={[7.2, 4.2, 0.24]} radius={0.12} smoothness={4} castShadow>
@@ -38,7 +125,12 @@ function Monitor() {
 
       <mesh position={[0, 0, 0.16]}>
         <planeGeometry args={[6.4, 3.5]} />
-        <meshBasicMaterial color="#050816" />
+        <meshBasicMaterial
+          ref={matRef}
+          map={texture ?? undefined}
+          color={texture ? '#ffffff' : '#050816'}
+          toneMapped={false}
+        />
       </mesh>
 
       <mesh position={[0, -2.55, 0]} castShadow>
@@ -73,26 +165,47 @@ function AccentObjects() {
   )
 }
 
-export function WorldRoomCanvas() {
+export function WorldRoomCanvas({
+  captureCanvas,
+  cameraDirection,
+  onAnimationComplete,
+}: {
+  captureCanvas?: HTMLCanvasElement | null
+  cameraDirection?: 'in' | 'out' | null
+  onAnimationComplete?: () => void
+}) {
+  const initPos: [number, number, number] = cameraDirection === 'in' ? [0, 1.2, 3.2] : [0, 2.4, 8.5]
+  const isAnimating = cameraDirection === 'in' || cameraDirection === 'out'
+
   return (
-    <Canvas shadows camera={{ position: [0, 2.4, 8.5], fov: 42 }}>
+    <Canvas shadows camera={{ position: initPos, fov: 42, near: 0.1, far: 50 }}>
       <color attach="background" args={['#05070d']} />
       <fog attach="fog" args={['#05070d', 8, 22]} />
-      <ambientLight intensity={0.8} />
+      <ambientLight intensity={1.05} />
       <directionalLight
         position={[5, 10, 6]}
-        intensity={1.3}
+        intensity={1.35}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
-      <pointLight position={[0, 3.2, -1]} intensity={2.2} color="#7c8dff" />
+      <pointLight position={[0, 2.6, -1.1]} intensity={3.6} color="#9fb3ff" />
 
       <RoomShell />
-      <Monitor />
+      <Monitor captureCanvas={captureCanvas} />
       <AccentObjects />
 
-      <OrbitControls enablePan={false} minDistance={6} maxDistance={11} maxPolarAngle={Math.PI / 2.05} />
+      {isAnimating && cameraDirection && (
+        <CameraAnimator direction={cameraDirection} onComplete={onAnimationComplete} />
+      )}
+
+      <OrbitControls
+        enabled={!isAnimating}
+        enablePan={false}
+        minDistance={6}
+        maxDistance={11}
+        maxPolarAngle={Math.PI / 2.05}
+      />
     </Canvas>
   )
 }

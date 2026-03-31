@@ -69,7 +69,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <article className="rounded-2xl border border-white/10 bg-[#0f172a] p-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Notes</p>
                 <p className="mt-3 text-sm leading-7 text-muted">
-                  이 영역은 나중에 김 대표님이 각 프로젝트별로 더 깊은 배경, 의사결정, 기술적 trade-off, 시행착오, 결과 해석을 직접 채워넣는 상세 narrative 공간입니다.
+                  각 프로젝트의 배경, 의사결정, 기술적 trade-off, 시행착오를 이후에 더 자세히 보강할 수 있도록 남겨둔 narrative 공간입니다.
                 </p>
               </article>
             </div>

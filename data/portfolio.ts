@@ -59,7 +59,7 @@ export interface FooterCtaContent {
 
 export const portfolioContent = {
   header: {
-    brand: 'ShenKim.exe',
+    brand: 'KimSangeun.exe',
     tagline: 'Problem Solver / Operator / Builder',
   },
   hero: {
@@ -111,7 +111,7 @@ export const portfolioContent = {
     title: '김상은 AI 터미널',
     description: '명령어로 섹션을 이동하고, 자연어로 질문하면서 포트폴리오를 탐색하세요.',
     emptyState: '터미널이 준비되었습니다. help 를 입력하거나 아래 명령어를 눌러 시작하세요.',
-    inputPlaceholder: 'help, goto about, projects, ask 어떤 개발자인가요?',
+    inputPlaceholder: 'help, goto projects, open shenkim-com, ask 어떤 개발자인가요?',
     exampleQuestionsLabel: '// example prompts',
     quickCommandsLabel: '// quick commands',
     terminalBoot: [
