@@ -79,8 +79,8 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
 
     if (!trimmed) return QUICK_COMMANDS
 
-    if ('open'.startsWith(trimmed)) return ['open']
-    if (raw === 'open ') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
+    if (trimmed === 'open') return ['open']
+    if (raw.endsWith('open ')) return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
     if (trimmed.startsWith('open ')) {
       const query = trimmed.replace(/^open\s+/, '')
       return projectSlugs
