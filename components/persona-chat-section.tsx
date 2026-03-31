@@ -79,25 +79,25 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
 
     if (!trimmed) return QUICK_COMMANDS
 
-    if (trimmed === 'open') return ['open']
-    if (raw.endsWith('open ')) return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
-    if (trimmed.startsWith('open ')) {
-      const query = trimmed.replace(/^open\s+/, '')
+    if (raw === 'open ') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
+    if (raw.startsWith('open ')) {
+      const query = raw.replace(/^open\s+/, '')
       return projectSlugs
         .filter((slug) => slug.startsWith(query))
         .map((slug) => `open ${slug}`)
         .slice(0, 5)
     }
+    if ('open'.startsWith(trimmed)) return ['open']
 
-    if ('search'.startsWith(trimmed)) return ['search']
     if (raw === 'search ') return projectSlugs.map((slug) => `search ${slug}`).slice(0, 5)
-    if (trimmed.startsWith('search ')) {
-      const query = trimmed.replace(/^search\s+/, '')
+    if (raw.startsWith('search ')) {
+      const query = raw.replace(/^search\s+/, '')
       return projectSlugs
         .filter((slug) => slug.includes(query))
         .map((slug) => `search ${slug}`)
         .slice(0, 5)
     }
+    if ('search'.startsWith(trimmed)) return ['search']
 
     return TERMINAL_COMMANDS.filter((command) => !command.includes('<') && command.startsWith(trimmed)).slice(0, 5)
   }, [input])
