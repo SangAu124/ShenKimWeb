@@ -1,26 +1,20 @@
-import { AboutSection } from '@/components/about-section'
-import { CaseSnapshotSection } from '@/components/case-snapshot-section'
-import { FooterCtaSection } from '@/components/footer-cta-section'
-import { HeroSection } from '@/components/hero-section'
 import { PersonaChatSection } from '@/components/persona-chat-section'
-import { ScenarioSection } from '@/components/scenario-section'
+import { SidebarShell } from '@/components/sidebar-shell'
 import { portfolioContent } from '@/data/portfolio'
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-bg text-text">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-6 pb-20 pt-8 md:px-10">
-        <header className="flex items-center justify-between border-b border-white/10 pb-5 text-sm text-muted">
-          <span className="font-semibold tracking-[0.18em] text-accent">{portfolioContent.header.brand}</span>
-          <span>{portfolioContent.header.tagline}</span>
-        </header>
+    <main className="h-screen overflow-hidden bg-bg text-text">
+      <div className="mx-auto flex h-screen w-full max-w-[1520px] flex-col px-4 py-4 md:px-6 xl:px-8">
+        <div className="grid h-full min-h-0 gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+          <SidebarShell />
 
-        <HeroSection content={portfolioContent.hero} />
-        <ScenarioSection />
-        <PersonaChatSection content={portfolioContent.persona} />
-        <AboutSection cards={portfolioContent.aboutCards} />
-        <CaseSnapshotSection content={portfolioContent.caseSnapshots} />
-        <FooterCtaSection content={portfolioContent.footerCta} />
+          <section className="min-h-0">
+            <div className="h-full rounded-[24px] border border-white/10 bg-[#0b1020]/90 shadow-panel backdrop-blur px-5 py-4">
+              <PersonaChatSection content={portfolioContent.persona} />
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   )
