@@ -31,6 +31,10 @@ export const TERMINAL_COMMANDS = [
   'about',
   'skills',
   'projects',
+  'search <keyword>',
+  'open <project>',
+  'resume',
+  'contact',
   'goto hero',
   'goto scenario',
   'goto persona',
@@ -38,6 +42,14 @@ export const TERMINAL_COMMANDS = [
   'goto cases',
   'ask <question>',
 ] as const
+
+function formatProject(project: (typeof portfolioContent.profileAssets.projects)[number]) {
+  return [
+    `${project.title} (${project.slug})`,
+    `- ${project.summary}`,
+    `- tags: ${project.tags.join(', ')}`,
+  ].join('\n')
+}
 
 export function parseTerminalCommand(input: string): TerminalCommandResult | null {
   const trimmed = input.trim()
@@ -59,6 +71,10 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
         '- about : explain the operator profile',
         '- skills : show core strengths and technical focus',
         '- projects : show recent project snapshots',
+        '- search <keyword> : search project and knowledge assets',
+        '- open <project> : open a named project detail',
+        '- resume : show concise resume summary',
+        '- contact : show contact information',
         '- goto <hero|scenario|persona|about|cases> : navigate to a section',
         '- ask <question> : ask a natural language question explicitly',
       ].join('\n'),
@@ -92,9 +108,90 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
     return {
       type: 'output',
       content: [
-        'Recent project snapshots:',
-        ...portfolioContent.knowledgeBase.projectSnapshots.map((item) => `- ${item}`),
+        'Project registry:',
+        ...portfolioContent.profileAssets.projects.map((project) => `- ${project.slug}: ${project.title}`),
+        '',
+        'tip: use `open <project>` for details',
       ].join('\n'),
+      navigateTo: 'cases',
+    }
+  }
+
+  if (normalized === 'resume') {
+    return {
+      type: 'output',
+      content: [
+        'Resume summary:',
+        ...portfolioContent.profileAssets.resumeSummary.map((item) => `- ${item}`),
+      ].join('\n'),
+    }
+  }
+
+  if (normalized === 'contact') {
+    const { contact } = portfolioContent.profileAssets
+    return {
+      type: 'output',
+      content: [
+        'Contact:',
+        `- email: ${contact.email}`,
+        `- website: ${contact.website}`,
+        `- note: ${contact.note}`,
+      ].join('\n'),
+    }
+  }
+
+  if (normalized.startsWith('search ')) {
+    const keyword = normalized.replace(/^search\s+/, '').trim()
+    const projectMatches = portfolioContent.profileAssets.projects.filter((project) => {
+      const haystack = `${project.slug} ${project.title} ${project.summary} ${project.tags.join(' ')}`.toLowerCase()
+      return haystack.includes(keyword)
+    })
+
+    const knowledgeMatches = [
+      ...portfolioContent.knowledgeBase.strengths,
+      ...portfolioContent.knowledgeBase.technicalFocus,
+      ...portfolioContent.knowledgeBase.projectSnapshots,
+    ].filter((item) => item.toLowerCase().includes(keyword))
+
+    if (projectMatches.length === 0 && knowledgeMatches.length === 0) {
+      return {
+        type: 'unknown',
+        content: `no results for: ${keyword}`,
+        suggestions: ['projects', 'skills', 'about'],
+      }
+    }
+
+    return {
+      type: 'output',
+      content: [
+        `Search results for: ${keyword}`,
+        ...(projectMatches.length > 0
+          ? ['','Projects:', ...projectMatches.map((project) => `- ${project.slug}: ${project.title}`)]
+          : []),
+        ...(knowledgeMatches.length > 0
+          ? ['', 'Knowledge:', ...knowledgeMatches.map((item) => `- ${item}`)]
+          : []),
+      ].join('\n'),
+    }
+  }
+
+  if (normalized.startsWith('open ')) {
+    const target = normalized.replace(/^open\s+/, '').trim()
+    const project = portfolioContent.profileAssets.projects.find(
+      (item) => item.slug === target || item.title.toLowerCase() === target,
+    )
+
+    if (!project) {
+      return {
+        type: 'unknown',
+        content: `project not found: ${target}`,
+        suggestions: portfolioContent.profileAssets.projects.map((item) => `open ${item.slug}`).slice(0, 4),
+      }
+    }
+
+    return {
+      type: 'output',
+      content: formatProject(project),
       navigateTo: 'cases',
     }
   }

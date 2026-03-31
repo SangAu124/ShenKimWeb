@@ -59,7 +59,7 @@ export interface FooterCtaContent {
 
 export const portfolioContent = {
   header: {
-    brand: 'KIMSANGEUN.EXE',
+    brand: 'ShenKim.exe',
     tagline: 'Problem Solver / Operator / Builder',
   },
   hero: {
@@ -108,7 +108,7 @@ export const portfolioContent = {
   } satisfies CaseSnapshotContent,
   persona: {
     eyebrow: 'AI Persona Terminal',
-    title: '김상은과 실제 터미널처럼 상호작용하세요',
+    title: '김상은 AI 터미널',
     description: '명령어로 섹션을 이동하고, 자연어로 질문하면서 포트폴리오를 탐색하세요.',
     emptyState: '터미널이 준비되었습니다. help 를 입력하거나 아래 명령어를 눌러 시작하세요.',
     inputPlaceholder: 'help, goto about, projects, ask 어떤 개발자인가요?',
@@ -138,6 +138,38 @@ export const portfolioContent = {
       { title: 'landing content refactored into reusable portfolio data', time: 'just now' },
       { title: 'persona terminal upgraded with command parsing', time: 'recently' },
       { title: 'AI portfolio shell layout introduced', time: 'recently' },
+    ],
+  },
+  profileAssets: {
+    resumeSummary: [
+      'Problem Solver / Operator / Builder',
+      '백엔드, 인프라, 운영을 하나의 흐름으로 보는 개발자',
+      'MVP 구현부터 안정화와 재발 방지까지 연결하는 실행 중심 성향',
+    ],
+    contact: {
+      email: 'dev.sangau20@gmail.com',
+      website: 'https://shenkim.com',
+      note: '협업, 제품 실험, 운영 자동화, AI 포트폴리오 구축 관련 대화를 환영합니다.',
+    },
+    projects: [
+      {
+        slug: 'shenkim-com',
+        title: 'shenkim.com',
+        summary: 'AI 포트폴리오 셸과 체험형 랜딩 구조를 실험하는 개인 사이트',
+        tags: ['nextjs', 'portfolio', 'ux', 'ai-shell'],
+      },
+      {
+        slug: 'deployment-ops',
+        title: 'Deployment & Ops',
+        summary: '개인 도메인, 배포 구조, 운영 흐름을 직접 설계하고 유지보수한 작업들',
+        tags: ['cloudflare', 'deploy', 'ops', 'infra'],
+      },
+      {
+        slug: 'execution-mvp',
+        title: 'Execution MVP',
+        summary: '실행 누락 문제를 다루는 서비스 아이데이션과 MVP 설계 실험',
+        tags: ['product', 'mvp', 'service-design'],
+      },
     ],
   },
   knowledgeBase: {
