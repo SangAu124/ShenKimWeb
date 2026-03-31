@@ -7,11 +7,11 @@ export default function ProjectsPage() {
 
   return (
     <main className="min-h-screen bg-bg text-text">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1520px] flex-col px-4 py-4 md:px-6 xl:px-8">
-        <div className="grid min-h-[calc(100vh-2rem)] gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1520px] flex-col px-3 py-3 sm:px-4 md:px-6 xl:px-8">
+        <div className="grid min-h-[calc(100vh-1.5rem)] gap-3 xl:grid-cols-[280px_minmax(0,1fr)] xl:gap-4">
           <SidebarShell />
 
-          <section className="rounded-[24px] border border-white/10 bg-[#0b1020]/90 p-6 shadow-panel backdrop-blur">
+          <section className="rounded-[18px] border border-white/10 bg-[#0b1020]/90 p-4 shadow-panel backdrop-blur sm:p-5 md:rounded-[24px] md:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">projects</p>
             <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-white">Project Registry</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-muted">
