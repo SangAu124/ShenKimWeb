@@ -37,6 +37,11 @@ export interface PersonaSectionContent {
   quickCommandsLabel: string
 }
 
+export interface ActivityItem {
+  title: string
+  time: string
+}
+
 export interface CaseSnapshotContent {
   eyebrow: string
   title: string
@@ -124,6 +129,17 @@ export const portfolioContent = {
       href: '#scenario',
     },
   } satisfies FooterCtaContent,
+  workspace: {
+    shellName: 'KimSangeun.exe Workspace',
+    modelLabel: 'Persona Engine · static knowledge mode',
+    runtimeLabel: 'Next.js 15 · terminal shell · portfolio context',
+    statusLine: 'online · low latency · command + natural language',
+    recentActivity: [
+      { title: 'landing content refactored into reusable portfolio data', time: 'just now' },
+      { title: 'persona terminal upgraded with command parsing', time: 'recently' },
+      { title: 'AI portfolio shell layout introduced', time: 'recently' },
+    ],
+  },
   knowledgeBase: {
     identity: {
       name: '김상은',

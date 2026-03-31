@@ -184,9 +184,9 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   function messageLabel(type: TerminalMessage['type']) {
     switch (type) {
       case 'command':
-        return '> '
+        return 'user'
       case 'assistant':
-        return 'ai'
+        return 'assistant'
       case 'error':
         return 'error'
       default:
@@ -197,113 +197,105 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   function messageClassName(type: TerminalMessage['type']) {
     switch (type) {
       case 'command':
-        return 'text-slate-100'
+        return 'border-white/10 bg-white/5'
       case 'assistant':
-        return 'text-accent2'
+        return 'border-accent/20 bg-accent/5'
       case 'error':
-        return 'text-red-400'
+        return 'border-red-500/20 bg-red-500/5'
       default:
-        return 'text-muted'
+        return 'border-white/10 bg-black/20'
     }
   }
 
   return (
-    <section
-      id="persona"
-      className="grid gap-6 border-t border-white/10 py-12 lg:grid-cols-[0.78fr_1.22fr]"
-    >
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-accent">
-          {content.eyebrow}
-        </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-[-0.04em]">{content.title}</h2>
-        <p className="mt-4 leading-8 text-muted">{content.description}</p>
+    <section id="persona" className="flex min-h-[640px] flex-col rounded-[24px] border border-white/10 bg-[#050816] shadow-panel">
+      <div className="border-b border-white/10 px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
+              {content.eyebrow}
+            </p>
+            <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-white">
+              {content.title}
+            </h3>
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">{content.description}</p>
+          </div>
+          <div className="grid gap-2 text-right text-[11px] uppercase tracking-[0.14em] text-white/35">
+            <span>session active</span>
+            <span>command + natural language</span>
+            <span>static persona mode</span>
+          </div>
+        </div>
+      </div>
 
-        <div className="mt-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-            {content.quickCommandsLabel}
-          </p>
-          <div className="flex flex-wrap gap-2">
+      <div className="grid gap-4 border-b border-white/10 bg-black/20 px-5 py-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">welcome</p>
+          <p className="mt-3 text-sm leading-7 text-muted">{content.emptyState}</p>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-[#0b1020] p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">launch prompts</p>
+          <div className="mt-3 flex flex-wrap gap-2">
             {QUICK_COMMANDS.map((command) => (
               <button
                 key={command}
                 onClick={() => runTerminalInput(command)}
                 disabled={isLoading}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-muted transition-colors hover:border-accent/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {command}
               </button>
             ))}
           </div>
         </div>
-
-        <div className="mt-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-            {content.exampleQuestionsLabel}
-          </p>
-          <div className="flex flex-col gap-2">
-            {EXAMPLE_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                onClick={() => runTerminalInput(`ask ${q}`)}
-                disabled={isLoading}
-                className="rounded-lg border border-white/10 px-3 py-2 text-left text-sm text-muted transition-colors hover:border-accent/40 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                ask {q}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-panel shadow-panel">
-        <div className="border-b border-white/10 bg-black/20 px-5 py-3">
-          <div className="flex items-center gap-2 text-xs text-muted">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
-            <span className="ml-2 font-mono">session://persona-terminal</span>
-          </div>
-        </div>
-
-        <div className="max-h-[560px] min-h-[360px] overflow-y-auto bg-[#050816] px-5 py-4 font-mono text-sm leading-7">
-          {messages.length === 0 && (
-            <p className="text-sm text-muted">{content.emptyState}</p>
-          )}
-
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 font-mono text-sm leading-7">
+        <div className="space-y-3">
           {messages.map((msg, idx) => (
-            <div key={`${msg.type}-${idx}`} className="mb-3 whitespace-pre-wrap break-words">
-              <span className={`mr-2 uppercase tracking-[0.14em] ${messageClassName(msg.type)}`}>
-                {messageLabel(msg.type)}
-              </span>
-              <span className="text-slate-200">{msg.content}</span>
+            <div
+              key={`${msg.type}-${idx}`}
+              className={`rounded-2xl border p-4 whitespace-pre-wrap break-words ${messageClassName(msg.type)}`}
+            >
+              <div className="mb-2 flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.14em] text-white/35">
+                <span>{messageLabel(msg.type)}</span>
+                <span>{formatTimestamp()}</span>
+              </div>
+              <div className="text-slate-200">{msg.type === 'command' ? `> ${msg.content}` : msg.content}</div>
             </div>
           ))}
 
           {isLoading && (
-            <div className="mb-3 flex items-center gap-2 text-accent">
-              <span className="uppercase tracking-[0.14em]">ai</span>
-              <span
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
-                style={{ animationDelay: '0ms' }}
-              />
-              <span
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
-                style={{ animationDelay: '150ms' }}
-              />
-              <span
-                className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
-                style={{ animationDelay: '300ms' }}
-              />
+            <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4">
+              <div className="mb-2 flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.14em] text-white/35">
+                <span>assistant</span>
+                <span>{formatTimestamp()}</span>
+              </div>
+              <div className="flex items-center gap-2 text-accent">
+                <span
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
+                  style={{ animationDelay: '0ms' }}
+                />
+                <span
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
+                  style={{ animationDelay: '150ms' }}
+                />
+                <span
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent"
+                  style={{ animationDelay: '300ms' }}
+                />
+              </div>
             </div>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t border-white/10 bg-black/30 px-4 py-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-            <span className="font-mono text-sm text-accent">&gt;</span>
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="border-t border-white/10 bg-black/20 px-5 py-4">
+        <div className="rounded-[20px] border border-white/10 bg-[#0b1020] p-4">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-sm text-accent">❯</span>
             <input
               type="text"
               value={input}
@@ -323,7 +315,6 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted">
-            <span className="uppercase tracking-[0.14em] text-white/40">suggest</span>
             {suggestions.map((suggestion) => (
               <button
                 key={suggestion}
@@ -335,7 +326,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
             ))}
           </div>
 
-          <div className="mt-2 text-[11px] uppercase tracking-[0.14em] text-white/30">
+          <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
             ↑/↓ history · tab autocomplete · enter run
           </div>
         </div>
