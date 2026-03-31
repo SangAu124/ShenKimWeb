@@ -1,14 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { resolvePersonaResponse } from '@/lib/chat-resolver'
 import { EXAMPLE_QUESTIONS } from '@/lib/persona-responses'
-import {
-  parseTerminalCommand,
-  TERMINAL_COMMANDS,
-  type TerminalSectionId,
-} from '@/lib/terminal-commands'
+import { parseTerminalCommand, TERMINAL_COMMANDS } from '@/lib/terminal-commands'
 import { portfolioContent } from '@/data/portfolio'
 import type { PersonaSectionContent } from '@/data/portfolio'
 
@@ -28,14 +25,6 @@ interface PersonaChatSectionProps {
 }
 
 const QUICK_COMMANDS = ['help', 'play', 'about', 'skills', 'projects', 'resume', 'contact']
-
-const SECTION_SELECTOR: Record<TerminalSectionId, string> = {
-  hero: 'main',
-  scenario: '#scenario',
-  persona: '#persona',
-  about: '#about',
-  cases: '#cases',
-}
 
 function formatTimestamp() {
   return new Date().toLocaleTimeString('ko-KR', {
@@ -60,6 +49,7 @@ function createMessage(
 }
 
 export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps) {
+  const router = useRouter()
   const initialMessages = useMemo<TerminalMessage[]>(
     () => content.terminalBoot.map((line) => createMessage('system', line)),
     [content.terminalBoot],
@@ -120,14 +110,6 @@ export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps)
     container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
   }, [messages, isLoading])
 
-  function navigateToSection(section: TerminalSectionId) {
-    const selector = SECTION_SELECTOR[section]
-    const target = selector === 'main' ? document.querySelector('main') : document.querySelector(selector)
-    if (target instanceof HTMLElement) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
-
   async function appendOutput(message: TerminalMessage) {
     await new Promise((resolve) => setTimeout(resolve, 120))
     setMessages((prev) => [...prev, message])
@@ -159,7 +141,7 @@ export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps)
 
     if (commandResult?.type === 'output') {
       await appendOutput(createMessage('system', commandResult.content, commandResult.cta))
-      if (commandResult.navigateTo) navigateToSection(commandResult.navigateTo)
+      if (commandResult.navigateTo) router.push(commandResult.navigateTo)
       return
     }
 

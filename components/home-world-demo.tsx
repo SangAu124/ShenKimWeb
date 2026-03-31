@@ -65,7 +65,7 @@ function buildMonitorCanvas(): HTMLCanvasElement {
   // brand
   ctx.fillStyle = '#f4f7fb'
   ctx.font = `700 22px ${SANS}`
-  ctx.fillText('KimSangeun.exe', 24, 90)
+  ctx.fillText(portfolioContent.header.brand, 24, 90)
 
   // ONLINE badge
   ctx.beginPath()
@@ -157,7 +157,7 @@ function buildMonitorCanvas(): HTMLCanvasElement {
 
   ctx.fillStyle = 'rgba(255,255,255,0.38)'
   ctx.font = `14px ${SANS}`
-  ctx.fillText('help, goto about, projects, ask 어떤 개발자인가요?', MX + 62, IY + 40)
+  ctx.fillText('help, goto projects, open shenkim-com, ask 어떤 개발자인가요?', MX + 62, IY + 40)
 
   return canvas
 }
@@ -217,7 +217,7 @@ export function HomeWorldDemo() {
           {worldMode && !exiting && (
             <>
               <div className="absolute left-3 top-3 rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-xs text-muted md:left-10 md:top-10 md:px-4 md:py-3 md:text-sm">
-                world://shenkim-exe-room
+                world://kimsangeun-exe-room
               </div>
               <div className="absolute right-3 top-3 max-w-[48vw] rounded-2xl border border-white/10 bg-black/30 px-3 py-2 text-right text-xs text-muted md:right-10 md:top-10 md:max-w-none md:px-4 md:py-3 md:text-sm">
                 render-to-texture prototype

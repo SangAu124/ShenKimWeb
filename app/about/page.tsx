@@ -12,7 +12,7 @@ export default function AboutPage() {
 
           <section className="rounded-[18px] border border-white/10 bg-[#0b1020]/90 p-4 shadow-panel backdrop-blur sm:p-5 md:rounded-[24px] md:p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">about</p>
-            <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-white">ShenKim.exe Profile</h1>
+            <h1 className="mt-3 text-3xl font-bold tracking-[-0.04em] text-white">KimSangeun.exe Profile</h1>
             <p className="mt-4 max-w-3xl text-sm leading-7 text-muted">{profileAssets.profileNarrative.intro}</p>
 
             <div className="mt-8 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">

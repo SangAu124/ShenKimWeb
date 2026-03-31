@@ -1,6 +1,6 @@
 import { portfolioContent } from '@/data/portfolio'
 
-export type TerminalSectionId = 'hero' | 'scenario' | 'persona' | 'about' | 'cases'
+export type TerminalRouteId = 'home' | 'about' | 'projects'
 
 export type TerminalCommandResult =
   | {
@@ -9,7 +9,7 @@ export type TerminalCommandResult =
   | {
       type: 'output'
       content: string
-      navigateTo?: TerminalSectionId
+      navigateTo?: string
       cta?: {
         label: string
         href: string
@@ -21,12 +21,10 @@ export type TerminalCommandResult =
       suggestions: string[]
     }
 
-const sectionDescriptions: Record<TerminalSectionId, string> = {
-  hero: 'hero section',
-  scenario: 'interactive scenario section',
-  persona: 'persona terminal section',
-  about: 'about summary section',
-  cases: 'case snapshot section',
+const routeDescriptions: Record<TerminalRouteId, string> = {
+  home: 'terminal home',
+  about: 'about page',
+  projects: 'projects page',
 }
 
 export const TERMINAL_COMMANDS = [
@@ -39,11 +37,9 @@ export const TERMINAL_COMMANDS = [
   'open <project>',
   'resume',
   'contact',
-  'goto hero',
-  'goto scenario',
-  'goto persona',
+  'goto home',
   'goto about',
-  'goto cases',
+  'goto projects',
   'ask <question>',
 ] as const
 
@@ -79,7 +75,7 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
         '- open <project>',
         '- resume',
         '- contact',
-        '- goto <hero|scenario|persona|about|cases>',
+        '- goto <home|about|projects>',
         '- ask <question>',
       ].join('\n'),
     }
@@ -220,21 +216,23 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
   }
 
   if (normalized.startsWith('goto ')) {
-    const target = normalized.replace(/^goto\s+/, '').trim() as TerminalSectionId
-    const validTargets: TerminalSectionId[] = ['hero', 'scenario', 'persona', 'about', 'cases']
+    const target = normalized.replace(/^goto\s+/, '').trim() as TerminalRouteId
+    const validTargets: TerminalRouteId[] = ['home', 'about', 'projects']
 
     if (validTargets.includes(target)) {
+      const href = target === 'home' ? '/' : `/${target}`
+
       return {
         type: 'output',
-        content: `navigating to ${sectionDescriptions[target]}...\ndone.`,
-        navigateTo: target,
+        content: `navigating to ${routeDescriptions[target]}...\ndone.`,
+        navigateTo: href,
       }
     }
 
     return {
       type: 'unknown',
-      content: 'unknown section. use: hero, scenario, persona, about, cases',
-      suggestions: ['goto hero', 'goto scenario', 'goto about'],
+      content: 'unknown route. use: home, about, projects',
+      suggestions: ['goto home', 'goto about', 'goto projects'],
     }
   }
 
