@@ -14,6 +14,7 @@ import type { PersonaSectionContent } from '@/data/portfolio'
 type TerminalMessage = {
   type: 'command' | 'system' | 'assistant' | 'error'
   content: string
+  timestamp: string
   cta?: {
     label: string
     href: string
@@ -43,9 +44,22 @@ function formatTimestamp() {
   })
 }
 
+function createMessage(
+  type: TerminalMessage['type'],
+  content: string,
+  cta?: TerminalMessage['cta'],
+): TerminalMessage {
+  return {
+    type,
+    content,
+    timestamp: formatTimestamp(),
+    cta,
+  }
+}
+
 export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   const initialMessages = useMemo<TerminalMessage[]>(
-    () => content.terminalBoot.map((line) => ({ type: 'system', content: `${formatTimestamp()} ${line}` })),
+    () => content.terminalBoot.map((line) => createMessage('system', line)),
     [content.terminalBoot],
   )
 
@@ -62,6 +76,15 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     if (!trimmed) return QUICK_COMMANDS
     return TERMINAL_COMMANDS.filter((command) => command.startsWith(trimmed)).slice(0, 5)
   }, [input])
+
+  const introLines = useMemo(
+    () => [
+      createMessage('system', content.emptyState),
+      createMessage('system', `quick commands: ${QUICK_COMMANDS.join(' · ')}`),
+      createMessage('system', `example prompts: ${EXAMPLE_QUESTIONS.map((q) => `ask ${q}`).join(' · ')}`),
+    ],
+    [content.emptyState],
+  )
 
   useEffect(() => {
     const container = logContainerRef.current
@@ -86,7 +109,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     const trimmed = text.trim()
     if (!trimmed || isLoading) return
 
-    setMessages((prev) => [...prev, { type: 'command', content: trimmed }])
+    setMessages((prev) => [...prev, createMessage('command', trimmed)])
     setHistory((prev) => [trimmed, ...prev.filter((item) => item !== trimmed)].slice(0, 20))
     setHistoryIndex(null)
     setDraftInput('')
@@ -101,16 +124,15 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     }
 
     if (commandResult?.type === 'output') {
-      await appendOutput({ type: 'system', content: commandResult.content, cta: commandResult.cta })
+      await appendOutput(createMessage('system', commandResult.content, commandResult.cta))
       if (commandResult.navigateTo) navigateToSection(commandResult.navigateTo)
       return
     }
 
     if (commandResult?.type === 'unknown') {
-      await appendOutput({
-        type: 'error',
-        content: `${commandResult.content}\ntry: ${commandResult.suggestions.join(' | ')}`,
-      })
+      await appendOutput(
+        createMessage('error', `${commandResult.content}\ntry: ${commandResult.suggestions.join(' | ')}`),
+      )
       return
     }
 
@@ -119,9 +141,11 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     try {
       const question = explicitAsk ? trimmed.slice(4).trim() : trimmed
       const response = await resolvePersonaResponse(question)
-      await appendOutput({ type: 'assistant', content: response })
+      await appendOutput(createMessage('assistant', response))
     } catch {
-      await appendOutput({ type: 'error', content: 'request failed. try again with a different command or question.' })
+      await appendOutput(
+        createMessage('error', 'request failed. try again with a different command or question.'),
+      )
     } finally {
       setIsLoading(false)
     }
@@ -184,7 +208,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
       case 'error':
         return 'ERR'
       default:
-        return 'SYS'
+        return '김상은'
     }
   }
 
@@ -223,14 +247,10 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
 
       <div ref={logContainerRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-5 font-mono text-sm leading-7">
         <div className="space-y-2">
-          <div className="text-muted whitespace-pre-wrap">{`${formatTimestamp()} [sys] ${content.emptyState}`}</div>
-          <div className="text-muted whitespace-pre-wrap">{`${formatTimestamp()} [sys] quick commands: ${QUICK_COMMANDS.join(' · ')}`}</div>
-          <div className="text-muted whitespace-pre-wrap">{`${formatTimestamp()} [sys] example prompts: ${EXAMPLE_QUESTIONS.map((q) => `ask ${q}`).join(' · ')}`}</div>
-
-          {messages.map((msg, idx) => (
-            <div key={`${msg.type}-${idx}`} className={`whitespace-pre-wrap break-words ${lineColor(msg.type)}`}>
+          {[...introLines, ...messages].map((msg, idx) => (
+            <div key={`${msg.type}-${idx}-${msg.timestamp}`} className={`whitespace-pre-wrap break-words ${lineColor(msg.type)}`}>
               <div>
-                <span className="mr-3 text-white/35">{formatTimestamp()}</span>
+                <span className="mr-3 text-white/35">{msg.timestamp}</span>
                 <span className="mr-3 uppercase text-white/35">[{linePrefix(msg.type)}]</span>
                 <span>{msg.content}</span>
               </div>
