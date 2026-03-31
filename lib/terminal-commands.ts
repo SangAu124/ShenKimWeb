@@ -10,6 +10,10 @@ export type TerminalCommandResult =
       type: 'output'
       content: string
       navigateTo?: TerminalSectionId
+      cta?: {
+        label: string
+        href: string
+      }
     }
   | {
       type: 'unknown'
@@ -45,9 +49,9 @@ export const TERMINAL_COMMANDS = [
 
 function formatProject(project: (typeof portfolioContent.profileAssets.projects)[number]) {
   return [
-    `${project.title} (${project.slug})`,
-    `- ${project.summary}`,
-    `- tags: ${project.tags.join(', ')}`,
+    `${project.title}`,
+    `${project.summary}`,
+    `tags: ${project.tags.join(', ')}`,
   ].join('\n')
 }
 
@@ -66,17 +70,17 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
       type: 'output',
       content: [
         'Available commands:',
-        '- help : show available terminal commands',
-        '- clear : clear terminal history',
-        '- about : explain the operator profile',
-        '- skills : show core strengths and technical focus',
-        '- projects : show recent project snapshots',
-        '- search <keyword> : search project and knowledge assets',
-        '- open <project> : open a named project detail',
-        '- resume : show concise resume summary',
-        '- contact : show contact information',
-        '- goto <hero|scenario|persona|about|cases> : navigate to a section',
-        '- ask <question> : ask a natural language question explicitly',
+        '- help',
+        '- clear',
+        '- about',
+        '- skills',
+        '- projects',
+        '- search <keyword>',
+        '- open <project>',
+        '- resume',
+        '- contact',
+        '- goto <hero|scenario|persona|about|cases>',
+        '- ask <question>',
       ].join('\n'),
     }
   }
@@ -88,6 +92,10 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
         portfolioContent.knowledgeBase.identity.summary,
         portfolioContent.knowledgeBase.identity.detail,
       ].join(' '),
+      cta: {
+        label: 'about 페이지 열기',
+        href: '/about',
+      },
     }
   }
 
@@ -113,7 +121,10 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
         '',
         'tip: use `open <project>` for details',
       ].join('\n'),
-      navigateTo: 'cases',
+      cta: {
+        label: 'projects 페이지 열기',
+        href: '/projects',
+      },
     }
   }
 
@@ -124,6 +135,10 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
         'Resume summary:',
         ...portfolioContent.profileAssets.resumeSummary.map((item) => `- ${item}`),
       ].join('\n'),
+      cta: {
+        label: 'about 페이지 열기',
+        href: '/about',
+      },
     }
   }
 
@@ -133,10 +148,14 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
       type: 'output',
       content: [
         'Contact:',
-        `- email: ${contact.email}`,
-        `- website: ${contact.website}`,
-        `- note: ${contact.note}`,
+        `email: ${contact.email}`,
+        `website: ${contact.website}`,
+        `${contact.note}`,
       ].join('\n'),
+      cta: {
+        label: 'website 열기',
+        href: contact.website,
+      },
     }
   }
 
@@ -166,12 +185,13 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
       content: [
         `Search results for: ${keyword}`,
         ...(projectMatches.length > 0
-          ? ['','Projects:', ...projectMatches.map((project) => `- ${project.slug}: ${project.title}`)]
+          ? ['', 'Projects:', ...projectMatches.map((project) => `- ${project.slug}: ${project.title}`)]
           : []),
         ...(knowledgeMatches.length > 0
           ? ['', 'Knowledge:', ...knowledgeMatches.map((item) => `- ${item}`)]
           : []),
       ].join('\n'),
+      cta: projectMatches.length > 0 ? { label: 'projects 페이지 열기', href: '/projects' } : undefined,
     }
   }
 
@@ -192,7 +212,10 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
     return {
       type: 'output',
       content: formatProject(project),
-      navigateTo: 'cases',
+      cta: {
+        label: 'projects 페이지 열기',
+        href: '/projects',
+      },
     }
   }
 

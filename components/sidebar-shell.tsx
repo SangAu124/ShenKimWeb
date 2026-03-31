@@ -1,9 +1,9 @@
 import { portfolioContent } from '@/data/portfolio'
 
 const quickSections = [
-  { label: 'about', href: '#about' },
-  { label: 'cases', href: '#cases' },
-  { label: 'terminal', href: '#persona' },
+  { label: 'terminal', href: '/' },
+  { label: 'about', href: '/about' },
+  { label: 'projects', href: '/projects' },
 ]
 
 const suggestedCommands = ['help', 'about', 'projects', 'resume', 'contact']
@@ -12,7 +12,7 @@ export function SidebarShell() {
   const { header, hero, knowledgeBase } = portfolioContent
 
   return (
-    <aside className="flex h-full flex-col gap-4 rounded-[24px] border border-white/10 bg-[#0b1020]/90 p-4 shadow-panel backdrop-blur">
+    <aside className="flex h-full min-h-0 flex-col gap-4 rounded-[24px] border border-white/10 bg-[#0b1020]/90 p-4 shadow-panel backdrop-blur">
       <div className="rounded-2xl border border-white/10 bg-[#0f172a] p-4">
         <div className="flex items-center justify-between gap-3">
           <div>

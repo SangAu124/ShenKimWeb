@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { resolvePersonaResponse } from '@/lib/chat-resolver'
 import { EXAMPLE_QUESTIONS } from '@/lib/persona-responses'
@@ -13,13 +14,17 @@ import type { PersonaSectionContent } from '@/data/portfolio'
 type TerminalMessage = {
   type: 'command' | 'system' | 'assistant' | 'error'
   content: string
+  cta?: {
+    label: string
+    href: string
+  }
 }
 
 interface PersonaChatSectionProps {
   content: PersonaSectionContent
 }
 
-const QUICK_COMMANDS = ['help', 'about', 'skills', 'projects', 'goto scenario', 'goto about']
+const QUICK_COMMANDS = ['help', 'about', 'skills', 'projects', 'resume', 'contact']
 
 const SECTION_SELECTOR: Record<TerminalSectionId, string> = {
   hero: 'main',
@@ -72,9 +77,9 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     }
   }
 
-  async function appendOutput(type: TerminalMessage['type'], content: string) {
+  async function appendOutput(message: TerminalMessage) {
     await new Promise((resolve) => setTimeout(resolve, 120))
-    setMessages((prev) => [...prev, { type, content }])
+    setMessages((prev) => [...prev, message])
   }
 
   async function runTerminalInput(text: string) {
@@ -96,13 +101,16 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     }
 
     if (commandResult?.type === 'output') {
-      await appendOutput('system', commandResult.content)
+      await appendOutput({ type: 'system', content: commandResult.content, cta: commandResult.cta })
       if (commandResult.navigateTo) navigateToSection(commandResult.navigateTo)
       return
     }
 
     if (commandResult?.type === 'unknown') {
-      await appendOutput('error', `${commandResult.content}\ntry: ${commandResult.suggestions.join(' | ')}`)
+      await appendOutput({
+        type: 'error',
+        content: `${commandResult.content}\ntry: ${commandResult.suggestions.join(' | ')}`,
+      })
       return
     }
 
@@ -111,9 +119,9 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     try {
       const question = explicitAsk ? trimmed.slice(4).trim() : trimmed
       const response = await resolvePersonaResponse(question)
-      await appendOutput('assistant', response)
+      await appendOutput({ type: 'assistant', content: response })
     } catch {
-      await appendOutput('error', 'request failed. try again with a different command or question.')
+      await appendOutput({ type: 'error', content: 'request failed. try again with a different command or question.' })
     } finally {
       setIsLoading(false)
     }
@@ -194,7 +202,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   }
 
   return (
-    <section id="persona" className="flex min-h-[720px] flex-col rounded-[20px] border border-white/10 bg-[#050816]">
+    <section id="persona" className="flex h-full min-h-0 flex-col rounded-[20px] border border-white/10 bg-[#050816]">
       <div className="border-b border-white/10 px-5 py-5">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -221,9 +229,21 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
 
           {messages.map((msg, idx) => (
             <div key={`${msg.type}-${idx}`} className={`whitespace-pre-wrap break-words ${lineColor(msg.type)}`}>
-              <span className="mr-3 text-white/35">{formatTimestamp()}</span>
-              <span className="mr-3 uppercase text-white/35">[{linePrefix(msg.type)}]</span>
-              <span>{msg.content}</span>
+              <div>
+                <span className="mr-3 text-white/35">{formatTimestamp()}</span>
+                <span className="mr-3 uppercase text-white/35">[{linePrefix(msg.type)}]</span>
+                <span>{msg.content}</span>
+              </div>
+              {msg.cta && (
+                <div className="mt-2 ml-[92px]">
+                  <Link
+                    href={msg.cta.href}
+                    className="inline-flex rounded-full border border-accent/40 px-3 py-1 text-xs text-accent transition-colors hover:bg-accent/10"
+                  >
+                    {msg.cta.label}
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
 
