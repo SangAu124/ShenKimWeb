@@ -282,6 +282,7 @@ export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps)
           <div className="hidden text-right text-[11px] uppercase tracking-[0.14em] text-white/35 xl:block">
             <div>session active</div>
             <div className="mt-1">command + natural language</div>
+            <div className="mt-1">try: play</div>
           </div>
         </div>
       </div>

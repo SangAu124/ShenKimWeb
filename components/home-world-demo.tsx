@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { PersonaChatSection } from '@/components/persona-chat-section'
 import { SidebarShell } from '@/components/sidebar-shell'
+import { WorldRoomCanvas } from '@/components/world-room-canvas'
 import { portfolioContent } from '@/data/portfolio'
 
 export function HomeWorldDemo() {
@@ -16,28 +17,17 @@ export function HomeWorldDemo() {
   return (
     <main className="h-screen overflow-hidden bg-[#060913] text-text">
       <div className="relative h-full w-full overflow-hidden [perspective:1800px]">
-        <div
-          className={`absolute inset-0 transition-all duration-1000 ${worldMode ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
-          style={{
-            background:
-              'radial-gradient(circle at 50% 38%, rgba(97,122,255,0.18), transparent 18%), linear-gradient(180deg, #04070d 0%, #0b1220 100%)',
-          }}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="absolute inset-x-[8%] bottom-[-18%] h-[45%] rounded-[50%] bg-[#111827] blur-3xl opacity-70" />
-            <div className="absolute inset-x-[5%] bottom-[8%] h-[14%] rounded-[50%] border border-white/5 bg-[#0a0f18]" />
-            <div className="absolute left-[8%] top-[16%] h-[48%] w-[16%] rounded-[28px] border border-white/5 bg-[#090d16] opacity-80" />
-            <div className="absolute right-[8%] top-[14%] h-[52%] w-[18%] rounded-[28px] border border-white/5 bg-[#090d16] opacity-70" />
-          </div>
+        <div className={`absolute inset-0 transition-all duration-1000 ${worldMode ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+          <WorldRoomCanvas />
 
           <div className="absolute left-10 top-10 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-muted">
-            world://shenkim-exe
+            world://shenkim-exe-room
           </div>
           <div className="absolute right-10 top-10 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-muted">
-            monitor escape demo · phase 2
+            three.js room demo · monitor prototype
           </div>
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-muted">
-            play를 치면 이 웹사이트 전체가 사실 world 안의 workstation 화면이었다는 전환을 보여주는 데모입니다.
+            play를 치면 이 웹사이트 전체가 room 안의 모니터 화면이었다는 데모입니다.
           </div>
         </div>
 
