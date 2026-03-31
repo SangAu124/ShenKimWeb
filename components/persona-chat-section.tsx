@@ -9,6 +9,7 @@ import {
   TERMINAL_COMMANDS,
   type TerminalSectionId,
 } from '@/lib/terminal-commands'
+import { portfolioContent } from '@/data/portfolio'
 import type { PersonaSectionContent } from '@/data/portfolio'
 
 type TerminalMessage = {
@@ -73,7 +74,28 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
 
   const suggestions = useMemo(() => {
     const trimmed = input.trim().toLowerCase()
+    const projectSlugs = portfolioContent.profileAssets.projects.map((project) => project.slug)
+
     if (!trimmed) return QUICK_COMMANDS
+
+    if (trimmed === 'open') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
+    if (trimmed.startsWith('open ')) {
+      const query = trimmed.replace(/^open\s+/, '')
+      return projectSlugs
+        .filter((slug) => slug.startsWith(query))
+        .map((slug) => `open ${slug}`)
+        .slice(0, 5)
+    }
+
+    if (trimmed === 'search') return projectSlugs.map((slug) => `search ${slug}`).slice(0, 5)
+    if (trimmed.startsWith('search ')) {
+      const query = trimmed.replace(/^search\s+/, '')
+      return projectSlugs
+        .filter((slug) => slug.includes(query))
+        .map((slug) => `search ${slug}`)
+        .slice(0, 5)
+    }
+
     return TERMINAL_COMMANDS.filter((command) => command.startsWith(trimmed)).slice(0, 5)
   }, [input])
 
@@ -190,6 +212,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
       e.preventDefault()
       const suggestion = suggestions[0]
       setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+      return
     }
   }
 
@@ -311,7 +334,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         </div>
 
         <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
-          ↑/↓ history · tab autocomplete · enter run
+          ↑/↓ history · tab autocomplete (incl. open/search project slugs) · enter run
         </div>
       </div>
     </section>
