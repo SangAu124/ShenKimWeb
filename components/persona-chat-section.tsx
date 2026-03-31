@@ -24,9 +24,10 @@ type TerminalMessage = {
 
 interface PersonaChatSectionProps {
   content: PersonaSectionContent
+  onPlay?: () => void
 }
 
-const QUICK_COMMANDS = ['help', 'about', 'skills', 'projects', 'resume', 'contact']
+const QUICK_COMMANDS = ['help', 'play', 'about', 'skills', 'projects', 'resume', 'contact']
 
 const SECTION_SELECTOR: Record<TerminalSectionId, string> = {
   hero: 'main',
@@ -58,7 +59,7 @@ function createMessage(
   }
 }
 
-export function PersonaChatSection({ content }: PersonaChatSectionProps) {
+export function PersonaChatSection({ content, onPlay }: PersonaChatSectionProps) {
   const initialMessages = useMemo<TerminalMessage[]>(
     () => content.terminalBoot.map((line) => createMessage('system', line)),
     [content.terminalBoot],
@@ -98,6 +99,8 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         .slice(0, 5)
     }
     if ('search'.startsWith(trimmed)) return ['search']
+
+    if ('play'.startsWith(trimmed)) return ['play']
 
     return TERMINAL_COMMANDS.filter((command) => !command.includes('<') && command.startsWith(trimmed)).slice(0, 5)
   }, [input])
@@ -139,6 +142,12 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     setHistoryIndex(null)
     setDraftInput('')
     setInput('')
+
+    if (trimmed.toLowerCase() === 'play') {
+      await appendOutput(createMessage('system', 'play sequence initiated... leaving terminal surface.'))
+      onPlay?.()
+      return
+    }
 
     const explicitAsk = trimmed.toLowerCase().startsWith('ask ')
     const commandResult = explicitAsk ? null : parseTerminalCommand(trimmed)
