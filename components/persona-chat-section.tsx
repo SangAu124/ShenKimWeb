@@ -9,6 +9,7 @@ import {
   TERMINAL_COMMANDS,
   type TerminalSectionId,
 } from '@/lib/terminal-commands'
+import { portfolioContent } from '@/data/portfolio'
 import type { PersonaSectionContent } from '@/data/portfolio'
 
 type TerminalMessage = {
@@ -72,9 +73,33 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
   const logContainerRef = useRef<HTMLDivElement>(null)
 
   const suggestions = useMemo(() => {
-    const trimmed = input.trim().toLowerCase()
+    const raw = input.toLowerCase()
+    const trimmed = raw.trim()
+    const projectSlugs = portfolioContent.profileAssets.projects.map((project) => project.slug)
+
     if (!trimmed) return QUICK_COMMANDS
-    return TERMINAL_COMMANDS.filter((command) => command.startsWith(trimmed)).slice(0, 5)
+
+    if (raw === 'open ') return projectSlugs.map((slug) => `open ${slug}`).slice(0, 5)
+    if (raw.startsWith('open ')) {
+      const query = raw.replace(/^open\s+/, '')
+      return projectSlugs
+        .filter((slug) => slug.startsWith(query))
+        .map((slug) => `open ${slug}`)
+        .slice(0, 5)
+    }
+    if ('open'.startsWith(trimmed)) return ['open']
+
+    if (raw === 'search ') return projectSlugs.map((slug) => `search ${slug}`).slice(0, 5)
+    if (raw.startsWith('search ')) {
+      const query = raw.replace(/^search\s+/, '')
+      return projectSlugs
+        .filter((slug) => slug.includes(query))
+        .map((slug) => `search ${slug}`)
+        .slice(0, 5)
+    }
+    if ('search'.startsWith(trimmed)) return ['search']
+
+    return TERMINAL_COMMANDS.filter((command) => !command.includes('<') && command.startsWith(trimmed)).slice(0, 5)
   }, [input])
 
   const introLines = useMemo(
@@ -189,7 +214,14 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
     if (e.key === 'Tab' && suggestions.length > 0) {
       e.preventDefault()
       const suggestion = suggestions[0]
-      setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+      if (suggestion === 'open') {
+        setInput('open ')
+      } else if (suggestion === 'search') {
+        setInput('search ')
+      } else {
+        setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+      }
+      return
     }
   }
 
@@ -302,7 +334,11 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
-              onClick={() => setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)}
+              onClick={() => {
+                if (suggestion === 'open') setInput('open ')
+                else if (suggestion === 'search') setInput('search ')
+                else setInput(suggestion.includes('<question>') ? 'ask ' : suggestion)
+              }}
               className="rounded-full border border-white/10 px-2.5 py-1 transition-colors hover:border-accent/40 hover:text-white"
             >
               {suggestion}
@@ -311,7 +347,7 @@ export function PersonaChatSection({ content }: PersonaChatSectionProps) {
         </div>
 
         <div className="mt-3 text-[11px] uppercase tracking-[0.14em] text-white/30">
-          ↑/↓ history · tab autocomplete · enter run
+          ↑/↓ history · tab autocomplete (incl. open/search project slugs) · enter run
         </div>
       </div>
     </section>

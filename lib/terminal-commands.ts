@@ -213,8 +213,8 @@ export function parseTerminalCommand(input: string): TerminalCommandResult | nul
       type: 'output',
       content: formatProject(project),
       cta: {
-        label: 'projects 페이지 열기',
-        href: '/projects',
+        label: '프로젝트 상세 열기',
+        href: `/projects/${project.slug}`,
       },
     }
   }
